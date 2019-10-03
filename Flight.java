@@ -8,7 +8,6 @@ public class Flight {
     private int seatsFC = 0;
     private double flightRevenue;
     private static int numFlights = 0;
-    private static double totalRevenue = 0;
     public static final double PREMIUM = 250.00;
     public static final double MIN_PRICE = 0.00;
     public static final double MAX_PRICE = 10000.00;
@@ -20,7 +19,9 @@ public class Flight {
             throw new IllegalArgumentException(" Flight identifier must be 6 characters");
         } else if (flightID.substring(0,1).matches("[0-9]")) {
             throw new ArrayIndexOutOfBoundsException();
-        }else {
+        } else if (flightID.substring(2,5).matches("[a-z]")) {
+            throw new ArrayIndexOutOfBoundsException();
+        } else {
             this.capitalizeFlightID = flightID.substring(0,2).toUpperCase();
         }
         this.flightID = this.capitalizeFlightID + flightID.substring(2);
@@ -33,16 +34,12 @@ public class Flight {
     public int getSeatsEco() { return this.seatsEco; }
     public int getSeatsFC() { return this.seatsFC; }
     public double getFlightRevenue() { return this.flightRevenue; }
-    public static double getTotalRevenue() { return totalRevenue; }
 
-    public boolean setFlightRoute(String flightRoute) {
-        if (!flightRoute.equals("")) {
-            this.flightRoute = flightRoute;
-            return true;
+    public void setFlightRoute(String flightRoute) {
+        if (flightRoute == null || flightRoute.equals("")) {
+            throw new IllegalArgumentException(" Flight route cannot be blank");
         }
-        else {
-            return false;
-        }
+        this.flightRoute = flightRoute;
     }
 
     public static int getNumFlights() {
@@ -74,14 +71,12 @@ public class Flight {
     }
 
     public static void removeNumFlights() {
-         --numFlights;
+        --numFlights;
     }
 
-    public void calcFlightRevenue(int seatsEco, int seatsFC) {
-        this.flightRevenue = (this.priceGen * seatsEco) + (this.pricePremium * seatsFC);
-        totalRevenue += flightRevenue;
+    public void calcFlightRevenue() {
+        this.flightRevenue = (this.priceGen * this.seatsEco) + (this.pricePremium * this.seatsFC);
     }
-
 
     public String toString() {
         return "Flight ID : "+ this.getFlightID() + " ||" +

@@ -2,9 +2,10 @@ import javax.swing.JOptionPane;
 
 public class FlightRecord {
     public static void main(String[] args) {
-        final int MAX_NUM_FLIGHTS = 15;
-        final int MAX_SEATS_ECO = 300;
-        final int MAX_SEATS_FC = 30;
+        final int MAX_NUM_FLIGHTS = 2;
+        final int MAX_SEATS_ECO = 2;
+        final int MAX_SEATS_FC = 2;
+        double totalRevenue = 0;
         int numFlights = 0;
         Flight[] flights = new Flight[MAX_NUM_FLIGHTS];
 
@@ -49,9 +50,11 @@ public class FlightRecord {
         }
 
         if(menuChoice == 5) {
-            exitProgram(flights, numFlights);
+            exitProgram(flights, numFlights, totalRevenue);
         }
     }
+
+
 
     public static int getMenuOption() {
         int choice;
@@ -91,12 +94,13 @@ public class FlightRecord {
                 }
             } while (!flightIDSet);
 
-            boolean flightRouteSet;
+            boolean flightRouteSet = false;
             do {
-                flights[numFlights].setFlightRoute(JOptionPane.showInputDialog("Enter flight route: "));
-                flightRouteSet = true;
-                if (!flightRouteSet) {
-                    JOptionPane.showMessageDialog(null, "Please enter a flight route");
+                try {
+                    flights[numFlights].setFlightRoute(JOptionPane.showInputDialog("Enter flight route: "));
+                    flightRouteSet = true;
+                } catch (IllegalArgumentException e) {
+                    JOptionPane.showMessageDialog(null, " Flight could not be added." + e.getMessage());
                 }
             } while (!flightRouteSet);
 
@@ -186,10 +190,8 @@ public class FlightRecord {
                 } else {
                     if (choice == 1 && seatsEco <= MAX_SEATS_ECO) {
                         flights[sellChoice].setSeatEco();
-                        ++seatsEco;
                     } else if (choice == 2 && seatsFC <= MAX_SEATS_FC) {
                         flights[sellChoice].setSeatFC();
-                        ++seatsFC;
                     } else if (choice == 0) {
                         JOptionPane.showMessageDialog(null, "Going back to main menu.");
                     } else {
@@ -200,8 +202,9 @@ public class FlightRecord {
                 choice = -1;
             }
         } while (choice < 0 || choice > 2);
-        flights[sellChoice].calcFlightRevenue(seatsEco,seatsFC);
-        JOptionPane.showMessageDialog(null, "Seats Eco : " + seatsEco + "\n" + "Seats FC: " + seatsFC);
+        flights[sellChoice].calcFlightRevenue();
+        double flightRevenue = flights[sellChoice].getFlightRevenue();
+        JOptionPane.showMessageDialog(null, "Seats Eco : " + seatsEco + "\n" + "Seats FC: " + seatsFC + "\n" + flightRevenue);
     }
 
     public static String displayAvailableFlights(Flight[] flights, String option) {
@@ -225,10 +228,13 @@ public class FlightRecord {
         JOptionPane.showMessageDialog(null, output);
     }
 
-    public static void exitProgram(Flight[] flights, int numFlights) {
+    public static void exitProgram(Flight[] flights, int numFlights, double totalRevenue) {
+        for (int x = 0; x < Flight.getNumFlights(); x++) {
+            totalRevenue += flights[x].getFlightRevenue();
+        }
         String output = "Thank you for using this program \n";
         output += " Number of flights entered: " + numFlights + "\n" +
-            " Total Revenue : " + String.format("$%.2f", Flight.getTotalRevenue());
+                " Total Revenue : " + String.format("$%.2f", totalRevenue);
 
         JOptionPane.showMessageDialog(null, output);
     }
